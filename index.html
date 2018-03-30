@@ -1,0 +1,166 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <title>Weather App</title>
+    <meta name="description" content="Weather App">
+    <meta name="author" content="SitePoint">
+
+
+
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+  <![endif]-->
+    <style>
+        .icon{
+
+        }
+        #temperature{
+          padding: 0px;
+          margin: 0px;
+        }
+        #temperatureCel{
+
+            padding: 0px;
+            margin: 0px;
+        }
+    </style>
+</head>
+
+<body style="z-index:-1;">
+  <div id="image" style="position:absolute; opacity:.2 margin:0 auto; width:500px; height: 100px; display:inline-flex;"></div>
+    <div style="background-color:red; text-align:center; margin:auto auto; width:50%; border: 2px solid black">
+        <header style="text-align:center; ">
+            <h1 style="margin-top:0px; margin-bottom:0px;">Weather App</h1>
+            <p style="margin-top:0px; margin-bottom:0px;">Ezra Jesalva</p>
+        </header>
+        <div id="content">
+            <div id="weatherBox" style="margin:0 auto; text-align:center; opacity: 2;">
+                <h1>Today's Weather (<span id="date"></span>)</h1>
+                <h3 id="" style="display:inline-block; margin:0px; padding:0px;">Temperature: &nbsp;</h3><h3 id="temperature" style=display:inline-block;></h3><h3 id="temperatureCel" style="display:none"></h3>
+                <div id="radioDiv" style=" height:20px;">
+                Fahrenheit<input type="radio" name="radioConverter"value="fahrenheit"checked/>
+                Celcius<input type="radio" name="radioConverter" value="celcius"/>
+                </div>
+                <h3 id="weather" style="display:inline-block">Weather: </h3>
+                <div class="icon" style="display:inline-block; height:36px;width:41px;"></div>
+            </div>
+
+
+        </div>
+
+        <script>
+            var userLocation = {};
+            var userData = {};
+
+              (function() {
+
+              var user = {};
+              $("#date").append(function(){
+                var myDate = new Date();
+                var month = myDate.getMonth();
+                var day = myDate.getDate();
+                var year = myDate.getFullYear();
+                return month + '/' + day + '/' + year;
+              });
+              var getWeather = function(){
+                console.log('in function' );
+                var userLatitude = userLocation.coords.latitude;
+                var userLongitude = userLocation.coords.longitude;
+                $.ajax({
+
+                  url:"https://fcc-weather-api.glitch.me/api/current?lat=" + userLatitude +  "&lon=" + userLongitude,
+                  success: function(userData){
+
+                    user = userData;
+                    user.main.tempFahrenheit = convertToFahr(user.main.temp);
+                    $(".icon").css("background-image", 'url("' + user.weather[0].icon + '")');
+                    $("#weather").append(user.weather[0].main);
+                    $("#temperature").append(' ' + user.main.tempFahrenheit + " degrees");
+
+                    $("#temperatureCel").append(' ' + user.main.temp + " degrees")
+
+
+                    putBackground();
+                    getBackground();
+                    var myimg  = user.weather[0].icon;
+                    console.log(myimg);
+                  },
+                  error: function(){
+                    alert('failed');
+                  }
+                });
+              }
+              getLocation();
+
+
+              var x  = document.getElementById("demo");
+
+              function putPosition(position){
+                userLocation = position;
+                console.log(userLocation.coords.latitude);
+                getWeather();
+              }
+              var putBackground = function(){
+                var temp = user.main.tempFahrenheit;
+                console.log(temp);
+              }
+
+              function getLocation() {
+                if(navigator.geolocation){
+                  navigator.geolocation.getCurrentPosition(putPosition);
+                  console.log('here');
+
+                } else{
+                  x.innerHTML = "Geolocation is not supported by this browser.";
+                }
+              }
+              var convertToFahr = function(celcius){
+                return celcius * (9/5) + 32;
+              }
+
+              $("input[name=radioConverter]").on("change",function(){
+                if($(this).val()==='fahrenheit'){
+                  $("#temperature").show();
+                  $("#temperatureCel").hide();
+
+                } else{
+                  $("#temperature").hide();
+                  $("#temperatureCel").css("display","inline-block");
+                  $("#temperatureCel").show();
+                }
+
+              })
+
+            var getBackground = function(){
+              var weather = user.main.tempFahrenheit;
+              console.log('weather  ' + weather);
+              var background = '';
+              if(weather<20)
+                background = 'arctic';
+              else if (weather<40)
+                background = 'mountain';
+              else if(weather<60)
+                background = 'field';
+              else if(weather<70)
+                background = 'park'
+              else if(weather<80)
+                background = 'tropical';
+              else if(weather<100)
+                background = 'desert';
+
+            background = 'img/' + background + '.jpg';
+
+            console.log(background);
+            // $("#image").prepend("<img id='theImg' src='" + background +  "' />");
+            $("body").css("background-image","url(" + background + ")");
+            }
+            })();
+        </script>
+    </div>
+</body>
+
+</html>
